@@ -2212,7 +2212,7 @@ namespace Assistant
 
         internal static List<string> SysMessages = new List<string>(21);
         static int MaxJournalEntries = 200;
-        internal static void HandleSpeech(Packet p, PacketHandlerEventArgs args, Serial ser, ushort body, MessageType type, ushort hue, ushort font, string lang, string name, string text)
+        internal static void HandleSpeech(Packet p, PacketHandlerEventArgs args, Serial ser, ushort body, MessageType type, ushort hue, ushort font, string lang, string name, string text, int num) // // The code I added
         {
 
             if (World.Player == null)
@@ -2226,7 +2226,7 @@ namespace Assistant
                 type = MessageType.System;
             }
 
-            Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(text, type.ToString(), hue, name, ser));          // Journal buffer
+            Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(text, type.ToString(), hue, name, ser, num));          // Journal buffer // The code I added
 
             // If its a spoken message, and it doesn't have the speakers name in it,
             //  add the speaker
@@ -2457,7 +2457,7 @@ namespace Assistant
             }
             else
             {
-                HandleSpeech(p, args, serial, body, type, hue, font, "A", name, text);
+                HandleSpeech(p, args, serial, body, type, hue, font, "A", name, text, 0);  // The code I added
             }
         }
 
@@ -2473,7 +2473,7 @@ namespace Assistant
             string name = p.ReadStringSafe(30);
             string text = p.ReadUnicodeStringSafe();
 
-            HandleSpeech(p, args, serial, body, type, hue, font, lang, name, text);
+            HandleSpeech(p, args, serial, body, type, hue, font, lang, name, text, 0);  // The code I added
         }
 
         private static void OnLocalizedMessage(Packet p, PacketHandlerEventArgs args)
@@ -2494,7 +2494,7 @@ namespace Assistant
             try
             {
                 string text = Language.ClilocFormat(num, ext_str);
-                HandleSpeech(p, args, serial, body, type, hue, font, Language.CliLocName.ToUpper(), name, text);
+                HandleSpeech(p, args, serial, body, type, hue, font, Language.CliLocName.ToUpper(), name, text, num); // The code I added
             }
             catch { } // avoid possible error if ultima.dll fail to get cliloc entry.
         }
@@ -2521,7 +2521,7 @@ namespace Assistant
                 text = String.Format("{0}{1}", affix, Language.ClilocFormat(num, args));
             else // 0 == append, 2 = system
                 text = String.Format("{0}{1}", Language.ClilocFormat(num, args), affix);
-            HandleSpeech(p, phea, serial, body, type, hue, font, Language.CliLocName.ToUpper(), name, text);
+            HandleSpeech(p, phea, serial, body, type, hue, font, Language.CliLocName.ToUpper(), name, text, num);  // The code I added
         }
 
         private static bool IsSpellMessage(int num)
@@ -2694,7 +2694,7 @@ namespace Assistant
                             {
                                 ushort nameLengh = p.ReadUInt16();
                                 string ownername = p.ReadString(nameLengh);
-                                Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(ownername, "System", 1, World.FindItem(serial).Name, (int)serial));          // Journal buffer
+                                Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(ownername, "System", 1, World.FindItem(serial).Name, (int)serial, 0));          // Journal buffer // The code I added
 
                                 attrib = p.ReadUInt32();
                             }
@@ -2708,9 +2708,9 @@ namespace Assistant
                                     try
                                     {
                                         ushort charge = p.ReadUInt16();
-                                        Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(charge.ToString(), "System", 1, World.FindItem(serial).Name, (int)serial));          // Journal buffer
+                                        Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(charge.ToString(), "System", 1, World.FindItem(serial).Name, (int)serial, 0));          // Journal buffer  // The code I added
 
-                                        Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(Language.GetCliloc((int)attrib), "System", 1, World.FindItem(serial).Name, (int)serial));          // Journal buffer
+                                        Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(Language.GetCliloc((int)attrib), "System", 1, World.FindItem(serial).Name, (int)serial, (int)attrib));          // Journal buffer  // The code I added
                                         attrib = p.ReadUInt32();
                                     }
                                     catch { }
@@ -2718,7 +2718,7 @@ namespace Assistant
                             }
                             else
                             {
-                                Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry("Unidentified", "System", 1, World.FindItem(serial).Name, (int)serial));          // Journal buffer
+                                Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry("Unidentified", "System", 1, World.FindItem(serial).Name, (int)serial, 0));          // Journal buffer
                             }
                         }
                         break;
@@ -2979,7 +2979,7 @@ namespace Assistant
                     {
                         Serial from = p.ReadUInt32();
                         string text = p.ReadUnicodeStringSafe();
-                        Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(text, "Party", 0, "null", from));          // Journal buffer
+                        Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(text, "Party", 0, "null", from, 0));          // Journal buffer
                         break;
                     }
                 case 0x07: // party invite
