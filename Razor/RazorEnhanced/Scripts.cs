@@ -344,7 +344,7 @@ namespace RazorEnhanced
                             FileChangeDate = System.IO.File.GetLastWriteTime(fullpath);
                         }
 
-                        m_pe.Execute(m_Text);
+                        m_pe.Execute(m_Text, fullpath); // The code I added：把脚本全路径名fullpath传进去，以便将脚本所在目录添加到python库搜寻路径中
                     }
                 }
                 catch (IronPython.Runtime.Exceptions.SystemExitException)

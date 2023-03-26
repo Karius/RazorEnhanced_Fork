@@ -150,6 +150,7 @@ namespace RazorEnhanced
             Source = Engine.CreateScriptSourceFromString(text, path);
             if (Source == null) return;
 
+            InitScriptPath(path); // The code I added
             //COMPILE with OPTIONS
             //PythonCompilerOptions in order to initialize Python modules correctly, without it the Python env is half broken
             Compiled = Source.Compile(CompilerOptions);
@@ -165,5 +166,29 @@ namespace RazorEnhanced
             //Execute directly, unless you are not planning to import external modules.
             //Source.Execute(m_Scope);
         }
+
+        // The code I added begin
+        // 将本次运行的脚本所在的目录添加到Python库搜寻路径中
+        private void InitScriptPath(string scriptPath)
+        {
+            //if (scriptPath == String.Empty)
+            if (string.IsNullOrWhiteSpace(scriptPath))
+            {
+                Engine.GetBuiltinModule().SetVariable("MyScriptFilename", String.Empty);
+                return;
+            }
+
+            // 将脚本目录增加到 IronPython 的包含目录列表中
+            string scriptDir = Path.GetDirectoryName(scriptPath);
+            if (!string.IsNullOrWhiteSpace(scriptDir))
+            {
+                ICollection<string> paths = Engine.GetSearchPaths();
+                paths.Add(scriptDir);
+                Engine.SetSearchPaths(paths);
+                //MessageBox.Show(scriptDir);
+            }
+            Engine.GetBuiltinModule().SetVariable("MyScriptFilename", Path.GetFileName(scriptPath));
+        }
+        // The code I added end
     }
 }
