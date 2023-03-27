@@ -2225,7 +2225,7 @@ namespace Assistant
                     SysMessages.RemoveRange(0, 10);
                 type = MessageType.System;
             }
-
+            // System.Diagnostics.Debugger.Log(0, null, String.Format ("[UO] HandleSpeech num:[0x{0:x}]", num));
             Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(text, type.ToString(), hue, name, ser, num));          // Journal buffer // The code I added
 
             // If its a spoken message, and it doesn't have the speakers name in it,
