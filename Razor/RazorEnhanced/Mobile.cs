@@ -13,7 +13,7 @@ namespace RazorEnhanced
     /// While the Mobile.Serial is unique for each Mobile, Mobile.MobileID is the unique for the Mobile apparence, or image. Sometimes is also called Body or Body ID.
     /// Mobiles which dies and leave a corpse behind, they stop existing as Mobiles and instead leave a corpse as a Item object appears.
     /// </summary>
-    public class Mobile : EnhancedEntity
+    public partial class Mobile : EnhancedEntity
     {
         private readonly Assistant.Mobile m_AssistantMobile;
 

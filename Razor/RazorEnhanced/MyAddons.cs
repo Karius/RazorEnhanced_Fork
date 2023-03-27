@@ -41,4 +41,30 @@ namespace RazorEnhanced
             return m_timer_out_milliseconds - ElapsedTime();
         }
     }
+    
+    public partial class Mobile : EnhancedEntity
+    {
+        public int DistanceTo(int x, int y)
+		{
+			return Utility.Distance(Position.X, Position.Y, x, y);
+		}
+
+		public int DistanceTo(Point3D pt)
+		{
+			return Utility.Distance(Position.X, Position.Y, pt.X, pt.Y);
+		}
+    }
+    
+    public partial class Item : EnhancedEntity
+    {
+        public int DistanceTo(int x, int y)
+		{
+			return Utility.Distance(Position.X, Position.Y, x, y);
+		}
+
+		public int DistanceTo(Point3D pt)
+		{
+			return Utility.Distance(Position.X, Position.Y, pt.X, pt.Y);
+		}
+    }
 }
