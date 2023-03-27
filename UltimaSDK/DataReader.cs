@@ -257,7 +257,8 @@ namespace Ultima
 #if DEBUG
                 throw new IndexOutOfRangeException();
 #else
-                Log.Error($"size out of range. {Position + size} > {Length}");
+                // i remove，这个Log不知道从哪来的，编译报错，我屏蔽掉了
+                // Log.Error($"size out of range. {Position + size} > {Length}");
 #endif
             }
         }
