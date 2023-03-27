@@ -172,7 +172,7 @@ namespace RazorEnhanced
                 m_Name = name;
                 m_Serial = serial;
                 m_Timestamp = DateTime.Now.Subtract(UnixTimeBegin).TotalSeconds;
-                m_Number = num & 0xFFFFFF; // The code I added
+                m_Number = num & 0xFFFF; // The code I added
             }
 
             public JournalEntry(JournalEntry from)
