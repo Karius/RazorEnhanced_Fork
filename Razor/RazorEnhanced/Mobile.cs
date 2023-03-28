@@ -426,7 +426,7 @@ namespace RazorEnhanced
     /// <summary>
     /// The Mobiles class provides a wide range of functions to search and interact with Mobile.
     /// </summary>
-    public class Mobiles
+    public partial class Mobiles
     {
 
         /// <summary>
@@ -551,6 +551,8 @@ namespace RazorEnhanced
             /// </summary>
             public List<byte> Notorieties = new List<byte>();
 
+            public List<string> NameList = new List<string>();  // The code I added // 我增加的，用于多个不同名字的查找
+
             public Filter()
             {
             }
@@ -586,6 +588,27 @@ namespace RazorEnhanced
                         List<Assistant.Mobile> list = assistantMobiles.Where(i => rgx.IsMatch(i.Name)).ToList();
                         assistantMobiles = list;
                     }
+                    // The code I added begin
+                    if (filter.NameList.Count > 0)
+                    {
+                        List<Assistant.Mobile> list = assistantMobiles.Where(
+                            (i) =>
+                            {
+                                foreach (var mobile_name in filter.NameList)
+                                {
+                                    if (mobile_name != String.Empty)
+                                    {
+                                        Regex rgx = new Regex(mobile_name, RegexOptions.IgnoreCase);
+                                        if (rgx.IsMatch(i.Name))
+                                            return true;
+                                    }
+                                }
+                                return false;
+                            }
+                        ).ToList();
+                        assistantMobiles = list;
+                    }
+                    // The code I added end
 
                     if (filter.Bodies.Count > 0)
                     {
