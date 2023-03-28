@@ -22,7 +22,7 @@ namespace RazorEnhanced
     /// <summary>
     /// The Autoloot class allow to interact with the Autoloot Agent, via scripting.
     /// </summary>
-    public class AutoLoot
+    public partial class AutoLoot
     {
         private static int m_lootdelay;
         private static int m_maxrange;

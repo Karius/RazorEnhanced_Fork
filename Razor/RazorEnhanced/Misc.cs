@@ -18,7 +18,7 @@ namespace RazorEnhanced
     /// <summary>
     /// The Misc class contains general purpose functions of common use.
     /// </summary>
-    public class Misc
+    public partial class Misc
     {
         // Bool per blocco packet in attesa di menu vecchi e vecchio gump response
         internal static bool BlockMenu = false;

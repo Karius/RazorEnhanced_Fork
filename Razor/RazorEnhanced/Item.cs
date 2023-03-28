@@ -443,7 +443,7 @@ namespace RazorEnhanced
     /// <summary>
     /// The Items class provides a wide range of functions to search and interact with Items.
     /// </summary>
-    public class Items
+    public partial class Items
     {
 
         /// <summary>

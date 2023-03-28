@@ -10,7 +10,7 @@ namespace RazorEnhanced
     /// <summary>
     /// The Player class represent the currently logged in character.
     /// </summary>
-    public class Player
+    public partial class Player
     {
         internal static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -2588,19 +2588,6 @@ namespace RazorEnhanced
             }
             return 0;  // Non esiste
         }
-        
-        // The code I added begin
-        // 返回当前登录UO的帐号名
-        public static string AccountName()
-        {
-            return World.AccountName;
-        }
-
-        public static string ShardName()
-        {
-            return World.ShardName;
-        }
-        // The code I added end
 
     }
 }
