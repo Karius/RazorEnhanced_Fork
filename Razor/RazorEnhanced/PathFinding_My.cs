@@ -122,13 +122,14 @@ namespace RazorEnhanced
         }
     }
 
-    internal static class TileExtensions_My
-    {
-        public static bool Ignored(this Ultima.Tile tile)
-        {
-            return (tile.ID == 2 || tile.ID == 0x1DB || (tile.ID >= 0x1AE && tile.ID <= 0x1B5));
-        }
-    }
+    // 这里注释掉，这个直接用PathFinding 中的 TileExtensions，不然编译会报冲突
+    //internal static class TileExtensions_My
+    //{
+    //    public static bool Ignored(this Ultima.Tile tile, bool no)
+    //    {
+    //        return (tile.ID == 2 || tile.ID == 0x1DB || (tile.ID >= 0x1AE && tile.ID <= 0x1B5));
+    //    }
+    //}
 
     internal class SquareGrid_My
     {
@@ -273,6 +274,9 @@ namespace RazorEnhanced
 
         private static bool CheckUserCustom (int x, int y, PathFinding_My.Route.AdditionalProperties add_prop)
         {
+            if (add_prop == null)
+                return false;
+
             // 检查坐标是否在用户强制允许区域列表中
             if (add_prop.ForceEnablePolygonAreaList != null && add_prop.ForceEnablePolygonAreaList.Count > 0)
             {
@@ -307,7 +311,7 @@ namespace RazorEnhanced
 
             //Ultima.HuedTile[] tiles = map.Tiles.GetStaticTiles(x, y, true);
             List<Statics.TileInfo> tiles = Statics.GetStaticsTileInfo(x, y, Player.Map);
-            var landTile = map.Tiles.GetLandTile(x, y);
+            Ultima.Tile landTile = (Ultima.Tile)map.Tiles.GetLandTile(x, y);
             var landData = TileData.LandTable[landTile.ID & (TileData.LandTable.Length - 1)];
             var landBlocks = (landData.Flags & TileFlag.Impassable) != 0;
             var considerLand = !landTile.Ignored();
@@ -594,7 +598,7 @@ namespace RazorEnhanced
         private static void GetStartZ(Point3D loc, Map map, IEnumerable<Assistant.Item> itemList, out int zLow, out int zTop)
         {
             int xCheck = loc.X, yCheck = loc.Y;
-            var landTile = map.Tiles.GetLandTile(xCheck, yCheck);
+            Ultima.Tile landTile = (Ultima.Tile)map.Tiles.GetLandTile(xCheck, yCheck);
             var landData = TileData.LandTable[landTile.ID & (TileData.LandTable.Length - 1)];
             var landBlocks = (landData.Flags & TileFlag.Impassable) != 0;
 
@@ -1116,7 +1120,7 @@ namespace RazorEnhanced
                 if (path[j].Conflict == false)
                     break;
             }
-            List<Tile_My> bypass = PathMove_My.GetPath(path[j+2].X, path[j+2].Y, false);
+            List<Tile_My> bypass = PathMove_My.GetPath(path[j+2].X, path[j+2].Y, false, null);
             return bypass;
         }
         internal static List<Tile_My> BypassHouse(List<Tile_My> path, int start)
@@ -1129,10 +1133,10 @@ namespace RazorEnhanced
             }
             // +1 to get a little past the house
             if (i < path.Count-1)
-                return PathMove_My.GetPath(path[i + 1].X, path[i + 1].Y, false);
+                return PathMove_My.GetPath(path[i + 1].X, path[i + 1].Y, false, null);
             
             // effectively do nothing
-            return PathMove_My.GetPath(path[start].X, path[start].Y, false);
+            return PathMove_My.GetPath(path[start].X, path[start].Y, false, null);
         }
 
         internal void PatchPath(PacketReader p, PacketHandlerEventArgs args)
