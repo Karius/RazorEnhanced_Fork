@@ -304,6 +304,7 @@ namespace RazorEnhanced
             return map;
         }
 
+        // 处理新藏宝图数据包
         internal void HandleMap(uint serial, ushort gump_art,
                              int upper_left_x, int upper_left_y,
                              int lower_right_x, int lower_right_y,
@@ -320,6 +321,47 @@ namespace RazorEnhanced
                 return;
             }
 
+        }
+
+        // 处理藏宝图的pin数据包，并把相关坐标信息显示出来
+        internal void HandleMapPin(uint s, byte action, byte id, int x, int y)
+        {
+            MapInfo mapInfo = null;
+            m_mapDict.TryGetValue(s, out mapInfo);
+
+            if (mapInfo != null)
+            {
+                mapInfo.HandlePin(action, id, x, y);
+
+                if (action >= 1 && action <= 3)
+                {
+                    // 解读藏宝图的位置
+                    //MapQueue.MapInfo mapInfo = null;
+                    //World.Maps.MapDict.TryGetValue(ser, out mapInfo);
+
+                    //if (mapInfo != null)
+                    {
+                        string cord_line = "";
+                        foreach (var key_value in mapInfo.PinDict)
+                        {
+                            MapQueue.MapInfo.Pin pin = key_value.Value;
+                            cord_line += String.Format("[{0}, {1}]:({2},{3}:{4},{5}) / GumpWidth/Height:[{6},{7}] Pin.Loc[{8},{9}]) ",
+                                // 这里乘上2是因为，游戏中展示的地图是个缩略图，pin.X和.Y是pin在缩略图中距离缩略图左上角像素的偏移点
+                                // 因为是缩略图，所以直接加上pin.X .Y最终坐标不对，所以乘以2之后缩略图的像素坐标就基本吻合实际坐标了
+                                // 虽然还有些差距，但总的是差不多了
+                                mapInfo.Upper_Left.X + pin.X * 2, mapInfo.Upper_Left.Y + pin.Y * 2,
+                                                        mapInfo.Upper_Left.X, mapInfo.Upper_Left.Y,
+                                                        mapInfo.Lower_Right.X, mapInfo.Lower_Right.Y,
+                                                        mapInfo.GumpWidth, mapInfo.GumpHeight,
+                                                        pin.X, pin.Y
+                                                        );
+                        }
+                        // 显示藏宝图的信息
+                        World.Player.SendMessage(cord_line);
+                    }
+
+                }
+            }
         }
     }
 
@@ -452,6 +494,7 @@ namespace RazorEnhanced
         {
             return Utility.Distance(Position.X, Position.Y, pt.X, pt.Y);
         }
+
     }
 
     public partial class Item : EnhancedEntity
@@ -484,6 +527,12 @@ namespace RazorEnhanced
         {
             return World.Mobiles.Count;
         }
+        // 我加入的，通过序列号检测怪物是否还存在
+        // 这种方式速度快，不用建立新的怪物对象
+        public static bool IsExists(int serial)
+        {
+            return Assistant.World.Mobiles.ContainsKey((Assistant.Serial)((uint)serial));
+        }
     }
 
 
@@ -492,12 +541,12 @@ namespace RazorEnhanced
         // 返回玩家当前骑士剩余的奉献点数
         public static int Tithe { get { return World.Player.Tithe; } }
 
-        public int DistanceTo(int x, int y)
+        public static int DistanceTo(int x, int y)
         {
             return Utility.Distance(Position.X, Position.Y, x, y);
         }
 
-        public int DistanceTo(Point3D pt)
+        public static int DistanceTo(Point3D pt)
         {
             return Utility.Distance(Position.X, Position.Y, pt.X, pt.Y);
         }
@@ -521,15 +570,40 @@ namespace RazorEnhanced
     {
         // 供脚本使用
         //public static List<AutoLootItem> GetAutolootItemList(string autoloot_list_name)
-        public static Dictionary<int, List<AutoLoot.AutoLootItem>> GetAutolootItemList(string autoloot_list_name)
+        public static Dictionary<int, List<AutoLoot.AutoLootItem>> GetAutolootItemDict(string autoloot_list_name)
         {
             return Settings.AutoLoot.ItemsRead(autoloot_list_name);
         }
+        public static List<AutoLoot.AutoLootItem> GetAutolootItemList(string autoloot_list_name)
+        {
+            List<AutoLoot.AutoLootItem> item_list = new List<AutoLoot.AutoLootItem>();
 
+            Dictionary<int, List<AutoLoot.AutoLootItem>> items = GetAutolootItemDict (autoloot_list_name);
+            foreach (KeyValuePair<int, List<AutoLoot.AutoLootItem>> entry in items)
+            {
+                foreach (AutoLootItem item in entry.Value)
+                {
+                    AutoLootItem new_item = new AutoLootItem(item.Name, item.Graphics, item.Color, item.Selected, item.LootBagOverride, item.Properties);
+                    item_list.Add(new_item);
+                }
+            }
+            return item_list;
+                
+        }
+        // public static List<AutoLootItem> GetCurrentAutolootItemDict()
+        public static Dictionary<int, List<AutoLoot.AutoLootItem>> GetCurrentAutolootItemDict()
+        {
+            return GetAutolootItemDict(ListName);
+        }
         // public static List<AutoLootItem> GetCurrentAutolootItemList()
-        public static Dictionary<int, List<AutoLoot.AutoLootItem>> GetCurrentAutolootItemList()
+        public static List<AutoLoot.AutoLootItem> GetCurrentAutolootItemList()
         {
             return GetAutolootItemList(ListName);
+        }
+
+        public static string GetListName
+        {
+            get { return ListName; }
         }
 
         public static int GetCurrentMaxrange()
@@ -652,6 +726,14 @@ namespace RazorEnhanced
         {
             //System.Windows.Forms.Keys key = 
             DLLImport.Win.PostMessage(DLLImport.Razor.FindUOWindow(), 0x100, (System.Windows.Forms.Keys)key, 0);
+        }
+    }
+
+    public partial class Target
+    {
+        public static void SetTargetShow(bool noshow)
+        {
+            Assistant.Targeting.NoShowTarget = noshow;
         }
     }
 

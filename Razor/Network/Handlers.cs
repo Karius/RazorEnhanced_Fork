@@ -2212,7 +2212,7 @@ namespace Assistant
 
         internal static List<string> SysMessages = new List<string>(21);
         static int MaxJournalEntries = 200;
-        internal static void HandleSpeech(Packet p, PacketHandlerEventArgs args, Serial ser, ushort body, MessageType type, ushort hue, ushort font, string lang, string name, string text, int num) // // The code I added
+        internal static void HandleSpeech(Packet p, PacketHandlerEventArgs args, Serial ser, ushort body, MessageType type, ushort hue, ushort font, string lang, string name, string text, int num) // The code I added
         {
 
             if (World.Player == null)
@@ -3174,18 +3174,27 @@ namespace Assistant
             Assistant.Item item = World.FindItem(serial);
             byte action = p.ReadByte();
 
+            // The code I added begin
+            // 从下面移上来的
+            byte id = p.ReadByte();     // skip 1 // The code I added，本来这个id只是读取但并未被记录，我在这里给记录上了
+            ushort x = p.ReadUInt16();
+            ushort y = p.ReadUInt16();
+            // The code I added end
+
             Logger.Debug("{0} for {1:X} type {2}", System.Reflection.MethodBase.GetCurrentMethod().Name, serial, (int)action);
             switch ((MapMessageType)action)
             {
                 case MapMessageType.Add:
-                    p.ReadByte();     // skip 1
-                    ushort x = p.ReadUInt16();
-                    ushort y = p.ReadUInt16();
+                    // The code I added begin，下面这段我给移动到上面去了，因为后面很多个action都要用到这几个数据
+                    //p.ReadByte();     // skip 1
+                    //ushort x = p.ReadUInt16();
+                    //ushort y = p.ReadUInt16();
+                    // The code I added end
                     MapItem mapItem = item as MapItem;
                     if (mapItem != null)
                     {
                         mapItem.PinPosition = new RazorEnhanced.Point2D(new Assistant.Point2D(x, y));
-                    }
+                    }                    
                     break;
                 case MapMessageType.Insert:
                     break;
@@ -3201,6 +3210,8 @@ namespace Assistant
                 case MapMessageType.EditResponse:
                     break;
             }
+
+            MapQueue.Maps.HandleMapPin(serial, action, id, (int)x, (int)y); // The code I added
         }
 
         private static void MapDetails(PacketReader p, PacketHandlerEventArgs args)
@@ -3238,6 +3249,7 @@ namespace Assistant
             //MapGump(serial, gumpid, width, height);
             //MultiMapLoader.Instance.LoadMap(width, height, startX, startY, endX, endY)
 
+            MapQueue.Maps.HandleMap(serial, cornerImage, x1, y1, x2, y2, width, height);  // The code I added 处理新的藏宝图信息，记录到队列中
 
         }
         private static void HueResponse(PacketReader p, PacketHandlerEventArgs args)
