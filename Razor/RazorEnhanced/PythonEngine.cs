@@ -83,6 +83,7 @@ namespace RazorEnhanced
             paths.Add(Misc.CurrentScriptDirectory());
             // 2- ./Lib/
             paths.Add(Path.Combine(basepath, "Lib"));
+            paths.Add(Path.Combine(basepath, "Lib", "site-packages")); // The code I added
             // 3- ./
             paths.Add(basepath);
 
@@ -124,6 +125,12 @@ namespace RazorEnhanced
             Modules.Add("DPSMeter", new RazorEnhanced.DPSMeter());
             Modules.Add("Timer", new RazorEnhanced.Timer());
             Modules.Add("Vendor", new RazorEnhanced.Vendor());
+
+            // The code I added begin
+            Modules.Add("PathFinding_My", new RazorEnhanced.PathFinding_My());
+            Modules.Add("TreasureMap", new RazorEnhanced.TreasureMap ());
+            Modules.Add("PolygonArea", new RazorEnhanced.PolygonArea()); 
+            // The code I added end
 
             //Setup builtin modules and scope
             foreach (var module in Modules) {
