@@ -93,7 +93,8 @@ namespace RazorEnhanced
             if (System.IO.Directory.Exists(@"C:\Program Files\IronPython 3.4"))
             {
                 paths.Add(@"C:\Program Files\IronPython 3.4");
-                paths.Add(@"C:\Program Files\IronPython 3.4\Lib"); 
+                paths.Add(@"C:\Program Files\IronPython 3.4\Lib");
+                paths.Add(@"C:\Program Files\IronPython 3.4\Lib\site-packages"); // The code I added
                 paths.Add(@"C:\Program Files\IronPython 3.4\DLLs");
                 paths.Add(@"C:\Program Files\IronPython 3.4\Scripts");
             }
@@ -182,6 +183,7 @@ namespace RazorEnhanced
             if (string.IsNullOrWhiteSpace(scriptPath))
             {
                 Engine.GetBuiltinModule().SetVariable("MyScriptFilename", String.Empty);
+                Engine.GetBuiltinModule().SetVariable("MY_SCRIPT_FILENAME", String.Empty); 
                 return;
             }
 
@@ -195,6 +197,8 @@ namespace RazorEnhanced
                 //MessageBox.Show(scriptDir);
             }
             Engine.GetBuiltinModule().SetVariable("MyScriptFilename", Path.GetFileName(scriptPath));
+            Engine.GetBuiltinModule().SetVariable("MY_SCRIPT_FILENAME", Path.GetFileName(scriptPath));
+            Engine.GetBuiltinModule().SetVariable("MY_SCRIPT_PATH", Path.GetDirectoryName(scriptPath));
         }
         // The code I added end
     }
