@@ -393,7 +393,9 @@ namespace RazorEnhanced
 
                         try // For prevent crash in case of file are busy or inaccessible
                         {
-                            File.AppendAllText(Assistant.Engine.RootPath + "\\" + m_Filename + ".ERROR", log.ToString());
+                            //File.AppendAllText(Assistant.Engine.RootPath + "\\" + m_Filename + ".ERROR", log.ToString());
+                            //File.AppendAllText(Path.Combine(Assistant.Engine.RootPath, "Scripts", m_Filename + ".ERROR"), log.ToString());
+                            File.AppendAllText(Path.Combine(Scripts.GetFullPathForScript(m_Filename), ".ERROR"), log.ToString());
                         }
                         catch { }
                         log.Clear();
