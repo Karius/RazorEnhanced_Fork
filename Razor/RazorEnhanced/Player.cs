@@ -10,7 +10,7 @@ namespace RazorEnhanced
     /// <summary>
     /// The Player class represent the currently logged in character.
     /// </summary>
-    public class Player
+    public partial class Player
     {
         internal static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -2588,5 +2588,6 @@ namespace RazorEnhanced
             }
             return 0;  // Non esiste
         }
+
     }
 }

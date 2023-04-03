@@ -12,7 +12,7 @@ namespace RazorEnhanced
     /// <summary>
     /// The Target class provides various method for targeting Land, Items and Mobiles in game.
     /// </summary>
-    public class Target
+    public partial class Target
     {
         private int m_ptarget;
         private RazorEnhanced.Point3D m_pgtarget;
