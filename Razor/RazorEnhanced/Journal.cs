@@ -6,7 +6,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using Assistant.UI;
 
-
 namespace Assistant
 {
     public partial class MainForm : System.Windows.Forms.Form
@@ -148,6 +147,11 @@ namespace RazorEnhanced
             /// </summary>
             public int Serial { get { return m_Serial; } }
 
+            // The code I added begin
+            private int m_Number;
+            public int Number { get { return m_Number; } }
+            // The code I added end
+
             private readonly double m_Timestamp;
             /// <summary>
             /// Timestamp as UnixTime, the number of seconds elapsed since 01-Jan-1970.
@@ -160,7 +164,7 @@ namespace RazorEnhanced
                 return new JournalEntry(this);
             }
 
-            public JournalEntry(string text, string type, int color, string name, int serial)
+            public JournalEntry(string text, string type, int color, string name, int serial, int num)
             {
                 m_Text = text;
                 m_Type = type;
@@ -168,6 +172,7 @@ namespace RazorEnhanced
                 m_Name = name;
                 m_Serial = serial;
                 m_Timestamp = DateTime.Now.Subtract(UnixTimeBegin).TotalSeconds;
+                m_Number = num & 0xFFFF; // The code I added
             }
 
             public JournalEntry(JournalEntry from)
@@ -178,6 +183,7 @@ namespace RazorEnhanced
                 m_Name = from.Name;
                 m_Serial = from.Serial;
                 m_Timestamp = from.Timestamp;
+                m_Number = from.Number;  // The code I added
             }
         }
 
@@ -609,9 +615,138 @@ namespace RazorEnhanced
             return false;
         }
 
+        // The code I added begin
+        public bool SearchByNumber(int number)
+        {
+            try
+            {
+                foreach (JournalEntry journalEntry in m_journal)
+                {
+                    if (journalEntry.Number == number)
+                        return true;
+                }
+            }
+            catch
+            {
+            }
+            return false;
+        }
+        public int WaitJournalByClilocNumber(List<int> numbers, int delay)
+        {
+            int subdelay = delay;
+            TimerCount tc = new TimerCount(delay);
 
+            while (true)
+            {
+                foreach (int num in numbers)
+                {
+                    if (SearchByNumber(num))
+                        return num; // found one of msgs list
+                    if (tc.isTimeOut())
+                        return 0;
+                }
+            }
+        }
+
+        public int WaitJournalByClilocNumberAndText(List<string> msgs, List<int> numbers, int delay)
+        {
+            int subdelay = delay;
+            TimerCount tc = new TimerCount(delay);
+
+            while (true)
+            {
+                foreach (int num in numbers)
+                {
+                    if (SearchByNumber(num))
+                        return num; // found one of msgs list
+                    if (tc.isTimeOut())
+                        return -1;
+                }
+
+                foreach (string s in msgs)
+                {
+                    if (Search(s))
+                        return 0; // found one of msgs list
+                    if (tc.isTimeOut())
+                        return -1;
+                }
+            }
+        }
+
+        public class JournalClilocText
+        {
+            public bool isFound = false;
+            public int foundType = 0;  // -1: cliloc type,  1:msg type
+            public int cliloc = 0;
+            public string msg = "";
+
+            public JournalClilocText(bool found, int type, int clilocNum, string msgText)
+            {
+                this.isFound = found;
+                this.foundType = type;
+                this.cliloc = clilocNum;
+                this.msg = msgText;
+            }
+        }
+        public string SearchText(string text)
+        {
+            try
+            {
+                string hasText = "";
+
+                foreach (JournalEntry journalEntry in m_journal)
+                {
+                    if (journalEntry.Text.Contains(text))
+                        hasText = string.Format("{0}(0x{1:X})", journalEntry.Text, journalEntry.Number);
+                        return "";
+                }
+                return hasText;
+            }
+            catch
+            {
+            }
+            return "";
+        }
+
+        public JournalClilocText WaitJournalByTextAndClilocNumber(List<string> msgs, List<int> numbers, int delay)
+        {
+            int subdelay = delay;
+            TimerCount tc = new TimerCount(delay);
+
+            while (true)
+            {
+                foreach (int num in numbers)
+                {
+                    if (SearchByNumber(num))
+                    {
+                        return new JournalClilocText(true, -1, num, ""); // found one of number list
+                    }
+                    if (tc.isTimeOut())
+                        return new JournalClilocText(false, 0, 0, "");
+                }
+
+                foreach (string s in msgs)
+                {
+                    string txt = SearchText(s);
+                    if (txt.Length > 0)
+                    {
+                        foreach (int num in numbers) // 再查找一次，因为可能会
+                        {
+                            if (SearchByNumber(num))
+                            {
+                                return new JournalClilocText(true, -1, num, ""); // found one of number list
+                            }
+                            if (tc.isTimeOut())
+                                return new JournalClilocText(true, 1, 0, txt); // found one of msgs list
+                        }
+                        return new JournalClilocText(true, 1, 0, txt); // found one of msgs list
+                    }
+                    if (tc.isTimeOut())
+                        return new JournalClilocText(false, 0, 0, "");
+                }
+            }
+        }
+        // The code I added end
     }
-
-
 
 }

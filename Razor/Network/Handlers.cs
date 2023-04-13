@@ -2212,7 +2212,7 @@ namespace Assistant
 
         internal static List<string> SysMessages = new List<string>(21);
         static int MaxJournalEntries = 200;
-        internal static void HandleSpeech(Packet p, PacketHandlerEventArgs args, Serial ser, ushort body, MessageType type, ushort hue, ushort font, string lang, string name, string text)
+        internal static void HandleSpeech(Packet p, PacketHandlerEventArgs args, Serial ser, ushort body, MessageType type, ushort hue, ushort font, string lang, string name, string text, int num) // The code I added
         {
 
             if (World.Player == null)
@@ -2225,8 +2225,8 @@ namespace Assistant
                     SysMessages.RemoveRange(0, 10);
                 type = MessageType.System;
             }
-
-            Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(text, type.ToString(), hue, name, ser));          // Journal buffer
+            // System.Diagnostics.Debugger.Log(0, null, String.Format ("[UO] HandleSpeech num:[0x{0:x}]", num));
+            Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(text, type.ToString(), hue, name, ser, num));          // Journal buffer // The code I added
 
             // If its a spoken message, and it doesn't have the speakers name in it,
             //  add the speaker
@@ -2457,7 +2457,7 @@ namespace Assistant
             }
             else
             {
-                HandleSpeech(p, args, serial, body, type, hue, font, "A", name, text);
+                HandleSpeech(p, args, serial, body, type, hue, font, "A", name, text, 0);  // The code I added
             }
         }
 
@@ -2473,7 +2473,7 @@ namespace Assistant
             string name = p.ReadStringSafe(30);
             string text = p.ReadUnicodeStringSafe();
 
-            HandleSpeech(p, args, serial, body, type, hue, font, lang, name, text);
+            HandleSpeech(p, args, serial, body, type, hue, font, lang, name, text, 0);  // The code I added
         }
 
         private static void OnLocalizedMessage(Packet p, PacketHandlerEventArgs args)
@@ -2494,7 +2494,7 @@ namespace Assistant
             try
             {
                 string text = Language.ClilocFormat(num, ext_str);
-                HandleSpeech(p, args, serial, body, type, hue, font, Language.CliLocName.ToUpper(), name, text);
+                HandleSpeech(p, args, serial, body, type, hue, font, Language.CliLocName.ToUpper(), name, text, num); // The code I added
             }
             catch { } // avoid possible error if ultima.dll fail to get cliloc entry.
         }
@@ -2521,7 +2521,7 @@ namespace Assistant
                 text = String.Format("{0}{1}", affix, Language.ClilocFormat(num, args));
             else // 0 == append, 2 = system
                 text = String.Format("{0}{1}", Language.ClilocFormat(num, args), affix);
-            HandleSpeech(p, phea, serial, body, type, hue, font, Language.CliLocName.ToUpper(), name, text);
+            HandleSpeech(p, phea, serial, body, type, hue, font, Language.CliLocName.ToUpper(), name, text, num);  // The code I added
         }
 
         private static bool IsSpellMessage(int num)
@@ -2694,7 +2694,7 @@ namespace Assistant
                             {
                                 ushort nameLengh = p.ReadUInt16();
                                 string ownername = p.ReadString(nameLengh);
-                                Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(ownername, "System", 1, World.FindItem(serial).Name, (int)serial));          // Journal buffer
+                                Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(ownername, "System", 1, World.FindItem(serial).Name, (int)serial, 0));          // Journal buffer // The code I added
 
                                 attrib = p.ReadUInt32();
                             }
@@ -2708,9 +2708,9 @@ namespace Assistant
                                     try
                                     {
                                         ushort charge = p.ReadUInt16();
-                                        Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(charge.ToString(), "System", 1, World.FindItem(serial).Name, (int)serial));          // Journal buffer
+                                        Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(charge.ToString(), "System", 1, World.FindItem(serial).Name, (int)serial, 0));          // Journal buffer  // The code I added
 
-                                        Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(Language.GetCliloc((int)attrib), "System", 1, World.FindItem(serial).Name, (int)serial));          // Journal buffer
+                                        Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(Language.GetCliloc((int)attrib), "System", 1, World.FindItem(serial).Name, (int)serial, (int)attrib));          // Journal buffer  // The code I added
                                         attrib = p.ReadUInt32();
                                     }
                                     catch { }
@@ -2718,7 +2718,7 @@ namespace Assistant
                             }
                             else
                             {
-                                Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry("Unidentified", "System", 1, World.FindItem(serial).Name, (int)serial));          // Journal buffer
+                                Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry("Unidentified", "System", 1, World.FindItem(serial).Name, (int)serial, 0));          // Journal buffer
                             }
                         }
                         break;
@@ -2979,7 +2979,7 @@ namespace Assistant
                     {
                         Serial from = p.ReadUInt32();
                         string text = p.ReadUnicodeStringSafe();
-                        Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(text, "Party", 0, "null", from));          // Journal buffer
+                        Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(text, "Party", 0, "null", from, 0));          // Journal buffer
                         break;
                     }
                 case 0x07: // party invite
@@ -3174,18 +3174,27 @@ namespace Assistant
             Assistant.Item item = World.FindItem(serial);
             byte action = p.ReadByte();
 
+            // The code I added begin
+            // 从下面移上来的
+            byte id = p.ReadByte();     // skip 1 // The code I added，本来这个id只是读取但并未被记录，我在这里给记录上了
+            ushort x = p.ReadUInt16();
+            ushort y = p.ReadUInt16();
+            // The code I added end
+
             Logger.Debug("{0} for {1:X} type {2}", System.Reflection.MethodBase.GetCurrentMethod().Name, serial, (int)action);
             switch ((MapMessageType)action)
             {
                 case MapMessageType.Add:
-                    p.ReadByte();     // skip 1
-                    ushort x = p.ReadUInt16();
-                    ushort y = p.ReadUInt16();
+                    // The code I added begin，下面这段我给移动到上面去了，因为后面很多个action都要用到这几个数据
+                    //p.ReadByte();     // skip 1
+                    //ushort x = p.ReadUInt16();
+                    //ushort y = p.ReadUInt16();
+                    // The code I added end
                     MapItem mapItem = item as MapItem;
                     if (mapItem != null)
                     {
                         mapItem.PinPosition = new RazorEnhanced.Point2D(new Assistant.Point2D(x, y));
-                    }
+                    }                    
                     break;
                 case MapMessageType.Insert:
                     break;
@@ -3201,6 +3210,8 @@ namespace Assistant
                 case MapMessageType.EditResponse:
                     break;
             }
+
+            MapQueue.Maps.HandleMapPin(serial, action, id, (int)x, (int)y); // The code I added
         }
 
         private static void MapDetails(PacketReader p, PacketHandlerEventArgs args)
@@ -3238,6 +3249,7 @@ namespace Assistant
             //MapGump(serial, gumpid, width, height);
             //MultiMapLoader.Instance.LoadMap(width, height, startX, startY, endX, endY)
 
+            MapQueue.Maps.HandleMap(serial, cornerImage, x1, y1, x2, y2, width, height);  // The code I added 处理新的藏宝图信息，记录到队列中
 
         }
         private static void HueResponse(PacketReader p, PacketHandlerEventArgs args)

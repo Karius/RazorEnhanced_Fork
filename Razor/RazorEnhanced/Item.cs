@@ -15,7 +15,7 @@ namespace RazorEnhanced
     /// Item can also be house foriture as well as decorative items on the ground, like lamp post and banches.
     /// However, for Item on the ground that cannot be picked up, they might be part of the world map, see Statics class.
     /// </summary>
-    public class Item : EnhancedEntity
+    public partial class Item : EnhancedEntity
     {
         private readonly Assistant.Item m_AssistantItem;
 
@@ -443,7 +443,7 @@ namespace RazorEnhanced
     /// <summary>
     /// The Items class provides a wide range of functions to search and interact with Items.
     /// </summary>
-    public class Items
+    public partial class Items
     {
 
         /// <summary>

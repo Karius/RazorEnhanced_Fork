@@ -344,6 +344,8 @@
     <Compile Include="RazorEnhanced\CSharpEngine.cs" />
     <Compile Include="RazorEnhanced\CUO.cs" />
     <Compile Include="RazorEnhanced\EncodedSpeech.cs" />
+    <Compile Include="RazorEnhanced\MyAddons.cs" />
+    <Compile Include="RazorEnhanced\PathFinding_My.cs" />
     <Compile Include="RazorEnhanced\PythonEngine.cs" />
     <Compile Include="RazorEnhanced\ScriptRecorder.cs" />
     <Compile Include="RazorEnhanced\PathFinding.cs" />

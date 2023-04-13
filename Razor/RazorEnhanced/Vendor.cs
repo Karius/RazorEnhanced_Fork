@@ -663,7 +663,8 @@ namespace RazorEnhanced
             Assistant.Client.Instance.SendToServer(new VendorSellResponse(vendor, list));
             AddLog("Sold " + sold.ToString() + " items for " + total.ToString() + " gold coins");
             string message = "Enhanced Sell Agent: sold " + sold.ToString() + " items for " + total.ToString() + " gold coins";
-            Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(message, "System", 1, "Vendor", vendor.Serial));          // Journal buffer
+            // The code I added, 传入cliloc，这里实际没有，那就传入0
+            Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(message, "System", 1, "Vendor", vendor.Serial, 0));          // Journal buffer
             World.Player.SendMessage(message);
             args.Block = true;
         }
@@ -1109,7 +1110,8 @@ namespace RazorEnhanced
             Assistant.Client.Instance.SendToServer(new VendorBuyResponse(serial, buyList));
 
             string message = "Enhanced Buy Agent: bought " + total.ToString() + " items for " + cost.ToString() + " gold coins";
-            Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(message, "System", 1, "Vendor", vendor.Serial));          // Journal buffer
+            // The code I added, 传入cliloc，这里实际没有，那就传入0
+            Journal.Enqueue(new RazorEnhanced.Journal.JournalEntry(message, "System", 1, "Vendor", vendor.Serial, 0));          // Journal buffer
             World.Player.SendMessage(message);
             AddLog("Bought " + total.ToString() + " items for " + cost.ToString() + " gold coins");
         }
