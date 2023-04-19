@@ -15,7 +15,7 @@ namespace RazorEnhanced
     /// Item can also be house foriture as well as decorative items on the ground, like lamp post and banches.
     /// However, for Item on the ground that cannot be picked up, they might be part of the world map, see Statics class.
     /// </summary>
-    public class Item : EnhancedEntity
+    public partial class Item : EnhancedEntity
     {
         private readonly Assistant.Item m_AssistantItem;
 
@@ -443,7 +443,7 @@ namespace RazorEnhanced
     /// <summary>
     /// The Items class provides a wide range of functions to search and interact with Items.
     /// </summary>
-    public class Items
+    public partial class Items
     {
 
         /// <summary>
@@ -490,15 +490,15 @@ namespace RazorEnhanced
         /// </summary>
         /// <param name="bag">Container as Item object.</param>
         /// <param name="delay">Maximum wait, in milliseconds.</param>
-        public static void WaitForContents(Item bag, int delay) // Delay in MS
+        public static bool WaitForContents(Item bag, int delay) // Delay in MS
         {
             if (bag == null || (!bag.IsCorpse && !bag.IsContainer))
-                return;
+                return false;
 
             RazorEnhanced.Items.UseItem(bag);
 
             if (bag.Updated)
-                return;
+                return true;
 
             int subdelay = delay;
             while (!bag.Updated)
@@ -506,17 +506,21 @@ namespace RazorEnhanced
                 Thread.Sleep(2);
                 subdelay -= 2;
                 if (subdelay <= 0)
-                    break;
+                    return false;
             }
+
+            return true;
         }
 
         /// <param name="bag_serial">Container as Item serial.</param>
         /// <param name="delay">max time to wait for contents</param>
-        public static void WaitForContents(int bag_serial, int delay) // Delay in MS
+        public static bool WaitForContents(int bag_serial, int delay) // Delay in MS
         {
             Item bag = FindBySerial(bag_serial);
             if (bag != null)
-                WaitForContents(bag, delay);
+                return WaitForContents(bag, delay);
+
+            return false; 
         }
 
         private static readonly Dictionary<uint, int> m_HuedItems = new Dictionary<uint, int>();
@@ -1539,7 +1543,7 @@ namespace RazorEnhanced
         /// Optionally can search in all subcontaners or to a maximum depth in subcontainers.
         /// Can use -1 on color for no chose color, can use -1 on container for search in all item in memory. The depth defaults to only the top but can search for # of sub containers.
         /// </summary>
-        /// <param name="itemid"> List of ItemID </ItemID> filter.</param>
+        /// <param name="itemid"> List of ItemID filter.</param>
         /// <param name="color">Color filter. (-1: any, 0: natural )</param>
         /// <param name="container">Serial of the container to search. (-1: any Item)</param>
         /// <param name="recursive">

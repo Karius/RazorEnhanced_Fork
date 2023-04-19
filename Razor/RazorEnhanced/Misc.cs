@@ -18,7 +18,7 @@ namespace RazorEnhanced
     /// <summary>
     /// The Misc class contains general purpose functions of common use.
     /// </summary>
-    public class Misc
+    public partial class Misc
     {
         // Bool per blocco packet in attesa di menu vecchi e vecchio gump response
         internal static bool BlockMenu = false;
@@ -1111,11 +1111,11 @@ namespace RazorEnhanced
         /// <summary>
         /// Creates a snapshot of the current UO window.
         /// </summary>
-        public static void CaptureNow()
+        /// <returns>The path to the saved file.</returns>
+        public static string CaptureNow()
         {
-            ScreenCapManager.CaptureNow();
+            return ScreenCapManager.CaptureNowPath();
         }
-
 
         /// <summary>
         /// The MapInfo class is used to store information about the Map location.

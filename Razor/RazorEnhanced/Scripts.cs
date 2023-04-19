@@ -344,7 +344,7 @@ namespace RazorEnhanced
                             FileChangeDate = System.IO.File.GetLastWriteTime(fullpath);
                         }
 
-                        m_pe.Execute(m_Text);
+                        m_pe.Execute(m_Text, fullpath); // The code I added：把脚本全路径名fullpath传进去，以便将脚本所在目录添加到python库搜寻路径中
                     }
                 }
                 catch (IronPython.Runtime.Exceptions.SystemExitException)
@@ -393,7 +393,9 @@ namespace RazorEnhanced
 
                         try // For prevent crash in case of file are busy or inaccessible
                         {
-                            File.AppendAllText(Assistant.Engine.RootPath + "\\" + m_Filename + ".ERROR", log.ToString());
+                            //File.AppendAllText(Assistant.Engine.RootPath + "\\" + m_Filename + ".ERROR", log.ToString());
+                            //File.AppendAllText(Path.Combine(Assistant.Engine.RootPath, "Scripts", m_Filename + ".ERROR"), log.ToString());
+                            File.AppendAllText(Path.Combine(Scripts.GetFullPathForScript(m_Filename), ".ERROR"), log.ToString());
                         }
                         catch { }
                         log.Clear();

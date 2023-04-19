@@ -11,6 +11,13 @@ namespace RazorEnhanced
         {
             m_AssistantPoint2D = point2D;
         }
+        // The code I added begin
+        // 本来没有这个构造，只能从Assistant.Point2D来构造，脚本里还需要这个，只能手动加上了
+        internal Point2D(int x, int y)
+        {
+            m_AssistantPoint2D = new Assistant.Point2D(x, y);
+        }
+        // The code I added end
 
         public int X { get { return m_AssistantPoint2D.X; } }
         public int Y { get { return m_AssistantPoint2D.Y; } }
