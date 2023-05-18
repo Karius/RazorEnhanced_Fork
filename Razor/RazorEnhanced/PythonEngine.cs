@@ -180,11 +180,14 @@ namespace RazorEnhanced
         // 将本次运行的脚本所在的目录添加到Python库搜寻路径中
         private void InitScriptPath(string scriptPath)
         {
+            Engine.GetBuiltinModule().SetVariable("RE_ROOT_PATH", Assistant.Engine.RootPath); // RazorEnhanced的主程序目录
+
             //if (scriptPath == String.Empty)
             if (string.IsNullOrWhiteSpace(scriptPath))
             {
-                Engine.GetBuiltinModule().SetVariable("MyScriptFilename", String.Empty);
-                Engine.GetBuiltinModule().SetVariable("MY_SCRIPT_FILENAME", String.Empty); 
+                Engine.GetBuiltinModule().SetVariable("MyScriptFilename", String.Empty);  // 这个准备废掉
+                Engine.GetBuiltinModule().SetVariable("MY_SCRIPT_FILENAME", String.Empty);
+                Engine.GetBuiltinModule().SetVariable("MY_SCRIPT_PATH", String.Empty);
                 return;
             }
 
@@ -197,7 +200,7 @@ namespace RazorEnhanced
                 Engine.SetSearchPaths(paths);
                 //MessageBox.Show(scriptDir);
             }
-            Engine.GetBuiltinModule().SetVariable("MyScriptFilename", Path.GetFileName(scriptPath));
+            Engine.GetBuiltinModule().SetVariable("MyScriptFilename", Path.GetFileName(scriptPath));    // 这个准备废掉
             Engine.GetBuiltinModule().SetVariable("MY_SCRIPT_FILENAME", Path.GetFileName(scriptPath));
             Engine.GetBuiltinModule().SetVariable("MY_SCRIPT_PATH", Path.GetDirectoryName(scriptPath));
         }

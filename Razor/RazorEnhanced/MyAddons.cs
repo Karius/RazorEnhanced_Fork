@@ -509,6 +509,7 @@ namespace RazorEnhanced
             return Utility.Distance(Position.X, Position.Y, pt.X, pt.Y);
         }
     }
+
     public partial class Items
     { 
         // 返回当前记录的所有物品数量
@@ -516,6 +517,11 @@ namespace RazorEnhanced
         {
             return World.Items.Count;
             //return World.Mobiles.Count;
+        }
+
+        public static bool IsExists(int serial)
+        {
+            return Assistant.World.FindItem((Assistant.Serial)((uint)serial)) != null;
         }
     }
 
